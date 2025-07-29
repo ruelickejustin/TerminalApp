@@ -1,238 +1,220 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Terminal App · PWA</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Terminal App</title>
 
-  <!-- Manifest (relativ, damit es immer im selben Ordner geladen wird) -->
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PWA Manifest -->
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#1E3246"/>
+  <meta name="theme-color" content="#1E3246">
 
-  <!-- Google Fonts & Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Material Symbols -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-
-  <style>
-    /* (Dein komplettes CSS vom letzten Mal – unverändert) */
-    /* … siehe oben … */
-  </style>
 </head>
-<body>
-  <header><h1>Terminal App</h1></header>
-  <main>
-    <section id="viewForm" class="card">
-      <!-- Formular wie gehabt -->
-      <label for="hall">Halle</label>
-      <select id="hall">
-        <option value="">-- wählen --</option>
-        <option>110</option><option>111</option><option>F</option><option>Geb.23</option>
-        <option>M</option><option>M+</option><option>M++</option><option>N</option>
-        <option>O</option><option>Q</option><option>S</option>
-      </select>
+<body class="flex flex-col h-screen bg-gray-50 text-gray-800">
 
-      <label for="station">Station</label>
-      <select id="station" disabled>
-        <option value="">-- wählen --</option>
-        <script>
-          for(let r=1;r<=9;r++) for(let c=1;c<=3;c++)
-            document.write(`<option>${r}-${c}</option>`);
-        </script>
-        <option>F21</option><option>F22</option><option>F23</option>
-      </select>
+  <!-- HEADER -->
+  <header class="bg-[#1E3246] text-white p-4 shadow-md">
+    <h1 class="text-xl font-semibold">Terminal App</h1>
+  </header>
 
-      <label for="ebene">Ebene</label>
-      <select id="ebene" disabled>
-        <option value="">-- wählen --</option>
-        <option>Dach</option><option>Mitte</option><option>Ug</option>
-      </select>
-
-      <label for="tid">Terminal-Nummer (2-stellig)</label>
-      <input id="tid" placeholder="z.B. 01" />
-
-      <button id="btnSave" class="btn-primary" disabled>
-        <span class="material-symbols-outlined">save</span> Speichern
-      </button>
-    </section>
-
-    <section id="viewList" class="hidden">
-      <div id="listActions">
-        <button id="exportBtn" class="btn-secondary">
-          <span class="material-symbols-outlined">download</span> Export CSV
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 overflow-auto p-4">
+    <!-- ERFASSEN -->
+    <section id="tab-erfassen" class="space-y-4">
+      <div class="bg-white p-6 rounded-2xl shadow-lg space-y-4">
+        <div>
+          <label for="hall" class="block text-sm font-medium text-gray-600">Halle</label>
+          <select id="hall" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]">
+            <option value="">– wählen –</option>
+            <option>110</option><option>111</option><option>F</option><option>Geb.23</option>
+            <option>M</option><option>M+</option><option>M++</option><option>N</option>
+            <option>O</option><option>Q</option><option>S</option>
+          </select>
+        </div>
+        <div>
+          <label for="station" class="block text-sm font-medium text-gray-600">Station</label>
+          <select id="station" disabled class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]">
+            <option value="">– wählen –</option>
+            <script>for(let r=1;r<=9;r++)for(let c=1;c<=3;c++)document.write(`<option>${r}-${c}</option>`);</script>
+            <option>F21</option><option>F22</option><option>F23</option>
+          </select>
+        </div>
+        <div>
+          <label for="ebene" class="block text-sm font-medium text-gray-600">Ebene</label>
+          <select id="ebene" disabled class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]">
+            <option value="">– wählen –</option>
+            <option>Dach</option><option>Mitte</option><option>Ug</option>
+          </select>
+        </div>
+        <div>
+          <label for="tid" class="block text-sm font-medium text-gray-600">Terminal-Nummer (2-stellig)</label>
+          <input id="tid" type="text" maxlength="2" placeholder="z.B. 01"
+                 class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]" />
+        </div>
+        <button id="btnSave" disabled
+                class="w-full inline-flex items-center justify-center gap-2 py-2 px-4 bg-[#1E3246] text-white rounded-lg shadow hover:bg-[#16314d] disabled:opacity-50">
+          <span class="material-symbols-outlined">save</span>
+          Speichern
         </button>
       </div>
-      <div id="entries"></div>
+    </section>
+
+    <!-- ÜBERSICHT -->
+    <section id="tab-uebersicht" class="hidden space-y-4">
+      <div class="flex justify-end">
+        <button id="exportBtn"
+                class="inline-flex items-center gap-2 py-2 px-4 bg-[#E2001A] text-white rounded-lg shadow hover:bg-[#c60016]">
+          <span class="material-symbols-outlined">download</span>
+          Export CSV
+        </button>
+      </div>
+      <div id="entries" class="space-y-4">
+        <!-- wird per JS gefüllt -->
+      </div>
     </section>
   </main>
 
-  <nav>
-    <button id="tabForm" class="active">
-      <span class="material-symbols-outlined">add</span> Erfassen
+  <!-- FOOTER NAV -->
+  <nav class="flex border-t bg-white">
+    <button id="nav-erfassen" class="flex-1 py-3 text-center hover:bg-gray-100">
+      <div class="material-symbols-outlined mx-auto">add</div>
+      <div class="text-sm">Erfassen</div>
     </button>
-    <button id="tabList">
-      <span class="material-symbols-outlined">list</span> Übersicht
+    <button id="nav-uebersicht" class="flex-1 py-3 text-center hover:bg-gray-100">
+      <div class="material-symbols-outlined mx-auto">list</div>
+      <div class="text-sm">Übersicht</div>
     </button>
-    <button id="tabOCR">
-      <span class="material-symbols-outlined">camera_alt</span> OCR
+    <button id="nav-ocr" class="flex-1 py-3 text-center hover:bg-gray-100">
+      <div class="material-symbols-outlined mx-auto">camera_alt</div>
+      <div class="text-sm">OCR</div>
     </button>
   </nav>
 
-  <div id="toast" class="toast"></div>
+  <!-- TOAST -->
+  <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-[#1E3246] text-white px-4 py-2 rounded-lg opacity-0 transition-opacity"></div>
 
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <script>
-    window.addEventListener('load', () => {
-      // Service-Worker relativ registrieren
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js')
-          .catch(err => console.warn('SW-Fehler:', err));
-      }
+  // -- PWA Service Worker --
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js');
+  }
 
-      // DOM-Elemente
-      const hall = document.getElementById('hall'),
-            station = document.getElementById('station'),
-            ebene = document.getElementById('ebene'),
-            tid = document.getElementById('tid'),
-            saveBtn = document.getElementById('btnSave'),
-            viewForm = document.getElementById('viewForm'),
-            viewList = document.getElementById('viewList'),
-            entries = document.getElementById('entries'),
-            listActions = document.getElementById('listActions'),
-            exportBtn = document.getElementById('exportBtn'),
-            tabForm = document.getElementById('tabForm'),
-            tabList = document.getElementById('tabList'),
-            tabOCR = document.getElementById('tabOCR'),
-            toast = document.getElementById('toast'),
-            KEY = 'terminals',
-            getData = () => JSON.parse(localStorage.getItem(KEY) || '[]'),
-            setData = d => localStorage.setItem(KEY, JSON.stringify(d)),
-            showToast = msg => {
-              toast.textContent = msg;
-              toast.classList.add('show');
-              setTimeout(() => toast.classList.remove('show'), 2000);
-            };
+  // -- DOM ELEMENTS --
+  const hall = document.getElementById('hall'),
+        station = document.getElementById('station'),
+        ebene = document.getElementById('ebene'),
+        tid = document.getElementById('tid'),
+        btnSave = document.getElementById('btnSave'),
+        exportBtn = document.getElementById('exportBtn'),
+        entries = document.getElementById('entries'),
+        toast = document.getElementById('toast'),
+        KEY = 'terminals';
 
-      // Tab-Navigation
-      tabForm.addEventListener('click', () => {
-        viewForm.classList.remove('hidden');
-        viewList.classList.add('hidden');
-        tabForm.classList.add('active');
-        tabList.classList.remove('active');
-      });
-      tabList.addEventListener('click', () => {
-        viewList.classList.remove('hidden');
-        viewForm.classList.add('hidden');
-        tabList.classList.add('active');
-        tabForm.classList.remove('active');
-        renderList();
-      });
-      tabOCR.addEventListener('click', () => {
-        window.location.href = './ocr.html';
-      });
+  // -- NAVIGATION --
+  document.getElementById('nav-erfassen')
+    .addEventListener('click', ()=>{ showTab('erfassen'); });
+  document.getElementById('nav-uebersicht')
+    .addEventListener('click', ()=>{ showTab('uebersicht'); renderList(); });
+  document.getElementById('nav-ocr')
+    .addEventListener('click', ()=>{ location.href = './ocr.html'; });
 
-      // Validierung
-      const validate = () => {
-        saveBtn.disabled = !(
-          hall.value &&
-          station.value &&
-          ebene.value &&
-          /^\d{2}$/.test(tid.value.trim())
-        );
-      };
-      hall.addEventListener('change', () => {
-        station.disabled = !hall.value;
-        ebene.disabled = !hall.value;
-        validate();
-      });
-      station.addEventListener('change', validate);
-      ebene.addEventListener('change', validate);
-      tid.addEventListener('input', validate);
-
-      // Speichern
-      saveBtn.addEventListener('click', () => {
-        const entry = {
-          hall: hall.value,
-          station: station.value,
-          ebene: ebene.value,
-          tid: `AOS ${tid.value.trim()}`
-        };
-        const data = getData();
-        if (data.some(d => d.tid === entry.tid)) {
-          return showToast('Terminal-ID existiert bereits');
-        }
-        data.push(entry);
-        setData(data);
-        renderList();
-        showToast('Gespeichert');
-        // Reset
-        hall.value = station.value = ebene.value = tid.value = '';
-        station.disabled = ebene.disabled = true;
-        saveBtn.disabled = true;
-      });
-
-      // Liste rendern
-      function renderList() {
-        const data = getData();
-        entries.innerHTML = '';
-        listActions.classList.toggle('hidden', data.length === 0);
-        if (!data.length) {
-          entries.insertAdjacentHTML(
-            'beforeend',
-            '<p style="text-align:center;color:var(--text-light);margin-top:2rem;">Keine Einträge</p>'
-          );
-          return;
-        }
-        data.forEach((d, i) => {
-          entries.insertAdjacentHTML(
-            'beforeend',
-            `<div class="entry">
-              <div class="entry-info">
-                <span class="hall">${d.hall} / ${d.station} / ${d.ebene}</span>
-                <span>${d.tid}</span>
-              </div>
-              <button class="entry-action" data-i="${i}" title="Löschen">
-                <span class="material-symbols-outlined">delete</span>
-              </button>
-            </div>`
-          );
-        });
-        document.querySelectorAll('.entry-action').forEach(btn => {
-          btn.addEventListener('click', e => {
-            const idx = +e.currentTarget.dataset.i;
-            const arr = getData();
-            arr.splice(idx, 1);
-            setData(arr);
-            renderList();
-            showToast('Gelöscht');
-          });
-        });
-      }
-
-      // CSV-Export
-      exportBtn.addEventListener('click', () => {
-        const data = getData();
-        if (!data.length) return showToast('Keine Daten');
-        const rows = [
-          ['Halle','Station','Ebene','Terminal-ID'],
-          ...data.map(d => [d.hall, d.station, d.ebene, d.tid])
-        ];
-        const csv = rows.map(r =>
-          r.map(c => `"${c.replace(/"/g,'""')}"`).join(',')
-        ).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'terminals.csv';
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast('Export abgeschlossen');
-      });
-
-      // Initial
-      renderList();
+  function showTab(name) {
+    ['erfassen','uebersicht'].forEach(t=>{
+      document.getElementById('tab-'+t)
+        .classList.toggle('hidden', t !== name);
     });
+  }
+
+  // -- TOAST --
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('opacity-100');
+    setTimeout(()=>toast.classList.remove('opacity-100'), 2000);
+  }
+
+  // -- LOCALSTORAGE --
+  const getData = ()=> JSON.parse(localStorage.getItem(KEY)||'[]');
+  const setData = d=> localStorage.setItem(KEY, JSON.stringify(d));
+
+  // -- VALIDIERUNG --
+  function validate() {
+    const ok = hall.value && station.value
+            && ebene.value && /^\d{2}$/.test(tid.value.trim());
+    btnSave.disabled = !ok;
+  }
+  hall.addEventListener('change', ()=>{ station.disabled = !hall.value; ebene.disabled = !hall.value; validate(); });
+  station.addEventListener('change', validate);
+  ebene.addEventListener('change', validate);
+  tid.addEventListener('input', validate);
+
+  // -- SPEICHERN --
+  btnSave.addEventListener('click', ()=>{
+    const entry = {
+      hall: hall.value,
+      station: station.value,
+      ebene: ebene.value,
+      tid: `AOS ${tid.value.trim()}`
+    };
+    const data = getData();
+    if (data.some(x=>x.tid===entry.tid)) return showToast('ID existiert bereits');
+    data.push(entry);
+    setData(data);
+    showToast('Gespeichert');
+    hall.value=station.value=ebene.value=tid.value='';
+    station.disabled=ebene.disabled=true;
+    btnSave.disabled=true;
+  });
+
+  // -- RENDER LISTE --
+  function renderList() {
+    const data = getData();
+    entries.innerHTML = '';
+    if (!data.length) {
+      entries.innerHTML = `<p class="text-center text-gray-500">Keine Einträge</p>`;
+      return;
+    }
+    data.forEach((d,i)=>{
+      const card = document.createElement('div');
+      card.className = 'bg-white p-4 rounded-xl shadow flex justify-between items-center';
+      card.innerHTML = `
+        <div>
+          <p class="font-semibold text-[#1E3246]">${d.hall} / ${d.station} / ${d.ebene}</p>
+          <p class="text-sm text-gray-600">${d.tid}</p>
+        </div>
+        <button data-i="${i}" class="text-[#E2001A] material-symbols-outlined">delete</button>
+      `;
+      entries.append(card);
+      card.querySelector('button').addEventListener('click', e=>{
+        const idx = +e.currentTarget.dataset.i;
+        const arr = getData();
+        arr.splice(idx,1);
+        setData(arr);
+        renderList();
+        showToast('Gelöscht');
+      });
+    });
+  }
+
+  // -- EXPORT CSV --
+  exportBtn.addEventListener('click', ()=>{
+    const data = getData();
+    if (!data.length) return showToast('Keine Daten');
+    const rows = [['Halle','Station','Ebene','Terminal-ID'], ...data.map(d=>[d.hall,d.station,d.ebene,d.tid])];
+    const csv = rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+    const blob = new Blob([csv],{type:'text/csv'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'terminals.csv';
+    a.click();
+    showToast('Export abgeschlossen');
+  });
   </script>
 </body>
 </html> 
