@@ -4,14 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Terminal App</title>
-
-  <!-- Tailwind CSS via CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
   <!-- PWA Manifest -->
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#1E3246">
-
   <!-- Material Symbols -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 </head>
@@ -22,44 +19,76 @@
     <h1 class="text-xl font-semibold">Terminal App</h1>
   </header>
 
-  <!-- MAIN CONTENT -->
-  <main class="flex-1 overflow-auto p-4">
-    <!-- ERFASSEN -->
-    <section id="tab-erfassen" class="space-y-4">
+  <!-- MAIN -->
+  <main class="flex-1 overflow-auto p-4 space-y-6">
+
+    <!-- ERFASSEN FORM -->
+    <section id="tab-erfassen" class="space-y-6">
       <div class="bg-white p-6 rounded-2xl shadow-lg space-y-4">
-        <div>
-          <label for="hall" class="block text-sm font-medium text-gray-600">Halle</label>
-          <select id="hall" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]">
-            <option value="">– wählen –</option>
-            <option>110</option><option>111</option><option>F</option><option>Geb.23</option>
-            <option>M</option><option>M+</option><option>M++</option><option>N</option>
-            <option>O</option><option>Q</option><option>S</option>
-          </select>
+        <!-- Standortfelder -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-600">Halle</label>
+            <select id="hall" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]">
+              <option value="">– wählen –</option>
+              <option>110</option><option>111</option><option>F</option><option>Geb.23</option>
+              <option>M</option><option>M+</option><option>M++</option><option>N</option>
+              <option>O</option><option>Q</option><option>S</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600">Station</label>
+            <select id="station" disabled class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]">
+              <option value="">– wählen –</option>
+              <script>for(let r=1;r<=9;r++)for(let c=1;c<=3;c++)document.write(`<option>${r}-${c}</option>`);</script>
+              <option>F21</option><option>F22</option><option>F23</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600">Ebene</label>
+            <select id="ebene" disabled class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]">
+              <option value="">– wählen –</option>
+              <option>Dach</option><option>Mitte</option><option>Ug</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600">Terminal-Nummer</label>
+            <input id="tid" type="text" maxlength="2" placeholder="z.B. 01"
+                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]" />
+          </div>
         </div>
-        <div>
-          <label for="station" class="block text-sm font-medium text-gray-600">Station</label>
-          <select id="station" disabled class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]">
-            <option value="">– wählen –</option>
-            <script>for(let r=1;r<=9;r++)for(let c=1;c<=3;c++)document.write(`<option>${r}-${c}</option>`);</script>
-            <option>F21</option><option>F22</option><option>F23</option>
-          </select>
+
+        <!-- OCR-Felder -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-600">Rechner S/N</label>
+            <div class="mt-1 flex gap-2">
+              <input id="rechnerSN" readonly
+                     class="flex-1 rounded-lg border-gray-300 bg-gray-100 px-3 py-2 shadow-sm" />
+              <button id="ocrRechner"
+                      class="inline-flex items-center gap-1 px-3 py-2 bg-[#E2001A] text-white rounded-lg shadow hover:bg-[#c60016]">
+                <span class="material-symbols-outlined">camera_alt</span>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600">Monitor S/N</label>
+            <div class="mt-1 flex gap-2">
+              <input id="monitorSN" readonly
+                     class="flex-1 rounded-lg border-gray-300 bg-gray-100 px-3 py-2 shadow-sm" />
+              <button id="ocrMonitor"
+                      class="inline-flex items-center gap-1 px-3 py-2 bg-[#E2001A] text-white rounded-lg shadow hover:bg-[#c60016]">
+                <span class="material-symbols-outlined">camera_alt</span>
+              </button>
+            </div>
+          </div>
         </div>
-        <div>
-          <label for="ebene" class="block text-sm font-medium text-gray-600">Ebene</label>
-          <select id="ebene" disabled class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]">
-            <option value="">– wählen –</option>
-            <option>Dach</option><option>Mitte</option><option>Ug</option>
-          </select>
-        </div>
-        <div>
-          <label for="tid" class="block text-sm font-medium text-gray-600">Terminal-Nummer (2-stellig)</label>
-          <input id="tid" type="text" maxlength="2" placeholder="z.B. 01"
-                 class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#1E3246] focus:border-[#1E3246]" />
-        </div>
+
+        <!-- SPEICHERN -->
         <button id="btnSave" disabled
-                class="w-full inline-flex items-center justify-center gap-2 py-2 px-4 bg-[#1E3246] text-white rounded-lg shadow hover:bg-[#16314d] disabled:opacity-50">
+                class="w-full inline-flex items-center justify-center gap-2 py-2 bg-[#1E3246] text-white rounded-lg shadow hover:bg-[#16314d] disabled:opacity-50">
           <span class="material-symbols-outlined">save</span>
-          Speichern
+          Terminal speichern
         </button>
       </div>
     </section>
@@ -73,9 +102,7 @@
           Export CSV
         </button>
       </div>
-      <div id="entries" class="space-y-4">
-        <!-- wird per JS gefüllt -->
-      </div>
+      <div id="entries" class="space-y-4"></div>
     </section>
   </main>
 
@@ -89,132 +116,146 @@
       <div class="material-symbols-outlined mx-auto">list</div>
       <div class="text-sm">Übersicht</div>
     </button>
-    <button id="nav-ocr" class="flex-1 py-3 text-center hover:bg-gray-100">
-      <div class="material-symbols-outlined mx-auto">camera_alt</div>
-      <div class="text-sm">OCR</div>
-    </button>
   </nav>
 
   <!-- TOAST -->
   <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-[#1E3246] text-white px-4 py-2 rounded-lg opacity-0 transition-opacity"></div>
 
-  <!-- SCRIPTS -->
+  <!-- Tesseract.js clientseitiges OCR -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <script>
-  // -- PWA Service Worker --
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js');
-  }
+  // Service Worker registrieren
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 
-  // -- DOM ELEMENTS --
+  // DOM
   const hall = document.getElementById('hall'),
         station = document.getElementById('station'),
         ebene = document.getElementById('ebene'),
         tid = document.getElementById('tid'),
+        rechnerSN = document.getElementById('rechnerSN'),
+        monitorSN = document.getElementById('monitorSN'),
+        btnOCRRechner = document.getElementById('ocrRechner'),
+        btnOCRMonitor = document.getElementById('ocrMonitor'),
         btnSave = document.getElementById('btnSave'),
         exportBtn = document.getElementById('exportBtn'),
         entries = document.getElementById('entries'),
         toast = document.getElementById('toast'),
-        KEY = 'terminals';
+        KEY = 'terminals_db';
 
-  // -- NAVIGATION --
-  document.getElementById('nav-erfassen')
-    .addEventListener('click', ()=>{ showTab('erfassen'); });
-  document.getElementById('nav-uebersicht')
-    .addEventListener('click', ()=>{ showTab('uebersicht'); renderList(); });
-  document.getElementById('nav-ocr')
-    .addEventListener('click', ()=>{ location.href = './ocr.html'; });
+  // Navigation
+  document.getElementById('nav-erfassen').onclick = ()=> showTab('erfassen');
+  document.getElementById('nav-uebersicht').onclick = ()=>{ showTab('uebersicht'); renderList(); };
 
   function showTab(name) {
-    ['erfassen','uebersicht'].forEach(t=>{
-      document.getElementById('tab-'+t)
-        .classList.toggle('hidden', t !== name);
-    });
+    ['erfassen','uebersicht'].forEach(t=>
+      document.getElementById('tab-'+t).classList.toggle('hidden', t!==name)
+    );
   }
 
-  // -- TOAST --
+  // Toast
   function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add('opacity-100');
-    setTimeout(()=>toast.classList.remove('opacity-100'), 2000);
+    toast.textContent=msg; toast.classList.add('opacity-100');
+    setTimeout(()=>toast.classList.remove('opacity-100'),2000);
   }
 
-  // -- LOCALSTORAGE --
-  const getData = ()=> JSON.parse(localStorage.getItem(KEY)||'[]');
-  const setData = d=> localStorage.setItem(KEY, JSON.stringify(d));
+  // Storage
+  const getData=()=>JSON.parse(localStorage.getItem(KEY)||'[]');
+  const setData=d=>localStorage.setItem(KEY,JSON.stringify(d));
 
-  // -- VALIDIERUNG --
-  function validate() {
-    const ok = hall.value && station.value
-            && ebene.value && /^\d{2}$/.test(tid.value.trim());
-    btnSave.disabled = !ok;
+  // Validate Save
+  function validate(){
+    btnSave.disabled = !(
+      hall.value && station.value && ebene.value &&
+      /^\d{2}$/.test(tid.value.trim()) &&
+      rechnerSN.value && monitorSN.value
+    );
   }
-  hall.addEventListener('change', ()=>{ station.disabled = !hall.value; ebene.disabled = !hall.value; validate(); });
-  station.addEventListener('change', validate);
-  ebene.addEventListener('change', validate);
-  tid.addEventListener('input', validate);
+  [hall,station,ebene,tid].forEach(el=>el.onchange=validate);
+  tid.oninput=validate;
 
-  // -- SPEICHERN --
-  btnSave.addEventListener('click', ()=>{
-    const entry = {
-      hall: hall.value,
-      station: station.value,
-      ebene: ebene.value,
-      tid: `AOS ${tid.value.trim()}`
+  // Dropdown enable
+  hall.onchange = ()=>{
+    station.disabled = !hall.value;
+    ebene.disabled = !hall.value;
+    validate();
+  };
+
+  // OCR helper
+  async function doOCR(targetInput){
+    showToast('OCR startet…');
+    // Kamera anfordern
+    const stream = await navigator.mediaDevices.getUserMedia({ video:{facingMode:'environment'}});
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    await video.play();
+    // Foto
+    const c = document.createElement('canvas');
+    c.width=video.videoWidth; c.height=video.videoHeight;
+    c.getContext('2d').drawImage(video,0,0);
+    stream.getTracks().forEach(t=>t.stop());
+    // OCR
+    const {data:{text}} = await Tesseract.recognize(c.toDataURL(),'deu+eng');
+    // Muster SN
+    const m = text.match(/SN[:\s]*([A-Z0-9\-]+)/i);
+    targetInput.value = m? m[1] : '';
+    showToast(targetInput.value? 'Erkannt: '+targetInput.value : 'Keine SN gefunden');
+    validate();
+  }
+
+  btnOCRRechner.onclick = ()=> doOCR(rechnerSN);
+  btnOCRMonitor.onclick = ()=> doOCR(monitorSN);
+
+  // Save entry
+  btnSave.onclick = ()=>{
+    const entry={
+      hall:hall.value,station:station.value,ebene:ebene.value,
+      tid:`AOS ${tid.value.trim()}`,
+      rechnerSN:rechnerSN.value, monitorSN:monitorSN.value
     };
-    const data = getData();
-    if (data.some(x=>x.tid===entry.tid)) return showToast('ID existiert bereits');
-    data.push(entry);
-    setData(data);
-    showToast('Gespeichert');
-    hall.value=station.value=ebene.value=tid.value='';
-    station.disabled=ebene.disabled=true;
-    btnSave.disabled=true;
-  });
+    const db=getData();
+    if (db.some(e=>e.tid===entry.tid))
+      return showToast('Terminal schon erfasst');
+    db.push(entry); setData(db);
+    showToast('Terminal gespeichert');
+    // Reset
+    [hall,station,ebene,tid,rechnerSN,monitorSN].forEach(e=>e.value='');
+    station.disabled=ebene.disabled=true; btnSave.disabled=true;
+  };
 
-  // -- RENDER LISTE --
-  function renderList() {
-    const data = getData();
-    entries.innerHTML = '';
-    if (!data.length) {
-      entries.innerHTML = `<p class="text-center text-gray-500">Keine Einträge</p>`;
-      return;
-    }
-    data.forEach((d,i)=>{
-      const card = document.createElement('div');
-      card.className = 'bg-white p-4 rounded-xl shadow flex justify-between items-center';
-      card.innerHTML = `
+  // Render Übersicht
+  function renderList(){
+    const db=getData();
+    entries.innerHTML='';
+    if (!db.length) return entries.innerHTML=`<p class="text-center text-gray-500">Keine Termine</p>`;
+    db.forEach((e,i)=>{
+      const el=document.createElement('div');
+      el.className='bg-white p-4 rounded-2xl shadow flex justify-between items-start';
+      el.innerHTML=`
         <div>
-          <p class="font-semibold text-[#1E3246]">${d.hall} / ${d.station} / ${d.ebene}</p>
-          <p class="text-sm text-gray-600">${d.tid}</p>
+          <p class="font-semibold text-[#1E3246]">${e.tid}</p>
+          <p>${e.hall} / ${e.station} / ${e.ebene}</p>
+          <p class="mt-2"><span class="font-medium">Rechner S/N:</span> ${e.rechnerSN}</p>
+          <p><span class="font-medium">Monitor S/N:</span> ${e.monitorSN}</p>
         </div>
-        <button data-i="${i}" class="text-[#E2001A] material-symbols-outlined">delete</button>
+        <button data-i="${i}" class="material-symbols-outlined text-[#E2001A]">delete</button>
       `;
-      entries.append(card);
-      card.querySelector('button').addEventListener('click', e=>{
-        const idx = +e.currentTarget.dataset.i;
-        const arr = getData();
-        arr.splice(idx,1);
-        setData(arr);
-        renderList();
-        showToast('Gelöscht');
-      });
+      entries.append(el);
+      el.querySelector('button').onclick=()=>{
+        const db2=getData(); db2.splice(i,1); setData(db2); renderList(); showToast('Gelöscht');
+      };
     });
   }
 
-  // -- EXPORT CSV --
-  exportBtn.addEventListener('click', ()=>{
-    const data = getData();
-    if (!data.length) return showToast('Keine Daten');
-    const rows = [['Halle','Station','Ebene','Terminal-ID'], ...data.map(d=>[d.hall,d.station,d.ebene,d.tid])];
-    const csv = rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
-    const blob = new Blob([csv],{type:'text/csv'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'terminals.csv';
-    a.click();
+  // CSV Export
+  exportBtn.onclick = ()=>{
+    const db=getData(); if (!db.length) return showToast('Keine Daten');
+    const rows=[['Terminal','Halle','Station','Ebene','RechnerSN','MonitorSN'], ...db.map(e=>[e.tid,e.hall,e.station,e.ebene,e.rechnerSN,e.monitorSN])];
+    const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv'}), url=URL.createObjectURL(blob),
+          a=document.createElement('a');
+    a.href=url; a.download='terminals.csv'; a.click(); URL.revokeObjectURL(url);
     showToast('Export abgeschlossen');
-  });
+  };
   </script>
 </body>
 </html> 
