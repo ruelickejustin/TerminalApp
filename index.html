@@ -10,7 +10,7 @@
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#1E3246">
   <!-- Material Symbols -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
 </head>
 <body class="flex flex-col h-screen bg-gray-50 text-gray-800">
 
@@ -22,10 +22,11 @@
   <!-- MAIN -->
   <main class="flex-1 overflow-auto p-4 space-y-6">
 
-    <!-- ERFASSEN FORM -->
+    <!-- ERFASSEN -->
     <section id="tab-erfassen" class="space-y-6">
       <div class="bg-white p-6 rounded-2xl shadow-lg space-y-4">
-        <!-- Standortfelder -->
+
+        <!-- Standort -->
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <label class="block text-sm font-medium text-gray-600">Halle</label>
@@ -64,7 +65,7 @@
             <label class="block text-sm font-medium text-gray-600">Rechner S/N</label>
             <div class="mt-1 flex gap-2">
               <input id="rechnerSN" readonly
-                     class="flex-1 rounded-lg border-gray-300 bg-gray-100 px-3 py-2 shadow-sm" />
+                     class="flex-1 rounded-lg border-gray-300 bg-gray-100 px-3 py-2 shadow-sm"/>
               <button id="ocrRechner"
                       class="inline-flex items-center gap-1 px-3 py-2 bg-[#E2001A] text-white rounded-lg shadow hover:bg-[#c60016]">
                 <span class="material-symbols-outlined">camera_alt</span>
@@ -75,7 +76,7 @@
             <label class="block text-sm font-medium text-gray-600">Monitor S/N</label>
             <div class="mt-1 flex gap-2">
               <input id="monitorSN" readonly
-                     class="flex-1 rounded-lg border-gray-300 bg-gray-100 px-3 py-2 shadow-sm" />
+                     class="flex-1 rounded-lg border-gray-300 bg-gray-100 px-3 py-2 shadow-sm"/>
               <button id="ocrMonitor"
                       class="inline-flex items-center gap-1 px-3 py-2 bg-[#E2001A] text-white rounded-lg shadow hover:bg-[#c60016]">
                 <span class="material-symbols-outlined">camera_alt</span>
@@ -84,7 +85,7 @@
           </div>
         </div>
 
-        <!-- SPEICHERN -->
+        <!-- Save -->
         <button id="btnSave" disabled
                 class="w-full inline-flex items-center justify-center gap-2 py-2 bg-[#1E3246] text-white rounded-lg shadow hover:bg-[#16314d] disabled:opacity-50">
           <span class="material-symbols-outlined">save</span>
@@ -104,9 +105,10 @@
       </div>
       <div id="entries" class="space-y-4"></div>
     </section>
+
   </main>
 
-  <!-- FOOTER NAV -->
+  <!-- NAV -->
   <nav class="flex border-t bg-white">
     <button id="nav-erfassen" class="flex-1 py-3 text-center hover:bg-gray-100">
       <div class="material-symbols-outlined mx-auto">add</div>
@@ -121,10 +123,10 @@
   <!-- TOAST -->
   <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-[#1E3246] text-white px-4 py-2 rounded-lg opacity-0 transition-opacity"></div>
 
-  <!-- Tesseract.js clientseitiges OCR -->
+  <!-- Tesseract.js -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <script>
-  // Service Worker registrieren
+  // Service Worker
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 
   // DOM
@@ -135,125 +137,168 @@
         rechnerSN = document.getElementById('rechnerSN'),
         monitorSN = document.getElementById('monitorSN'),
         btnOCRRechner = document.getElementById('ocrRechner'),
-        btnOCRMonitor = document.getElementById('ocrMonitor'),
-        btnSave = document.getElementById('btnSave'),
-        exportBtn = document.getElementById('exportBtn'),
-        entries = document.getElementById('entries'),
-        toast = document.getElementById('toast'),
-        KEY = 'terminals_db';
+        btnOCRMonitor  = document.getElementById('ocrMonitor'),
+        btnSave        = document.getElementById('btnSave'),
+        exportBtn      = document.getElementById('exportBtn'),
+        entries        = document.getElementById('entries'),
+        toast          = document.getElementById('toast'),
+        KEY            = 'terminals_db';
 
   // Navigation
   document.getElementById('nav-erfassen').onclick = ()=> showTab('erfassen');
-  document.getElementById('nav-uebersicht').onclick = ()=>{ showTab('uebersicht'); renderList(); };
+  document.getElementById('nav-uebersicht').onclick = ()=> { showTab('uebersicht'); renderList(); };
 
-  function showTab(name) {
+  function showTab(name){
     ['erfassen','uebersicht'].forEach(t=>
       document.getElementById('tab-'+t).classList.toggle('hidden', t!==name)
     );
   }
 
   // Toast
-  function showToast(msg) {
-    toast.textContent=msg; toast.classList.add('opacity-100');
-    setTimeout(()=>toast.classList.remove('opacity-100'),2000);
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('opacity-100');
+    setTimeout(()=> toast.classList.remove('opacity-100'), 2000);
   }
 
   // Storage
-  const getData=()=>JSON.parse(localStorage.getItem(KEY)||'[]');
-  const setData=d=>localStorage.setItem(KEY,JSON.stringify(d));
+  const getData = ()=> JSON.parse(localStorage.getItem(KEY)||'[]'),
+        setData = d=> localStorage.setItem(KEY, JSON.stringify(d));
 
-  // Validate Save
-  function validate(){
-    btnSave.disabled = !(
-      hall.value && station.value && ebene.value &&
-      /^\d{2}$/.test(tid.value.trim()) &&
-      rechnerSN.value && monitorSN.value
-    );
-  }
-  [hall,station,ebene,tid].forEach(el=>el.onchange=validate);
-  tid.oninput=validate;
-
-  // Dropdown enable
+  // Enable dropdowns + validation
   hall.onchange = ()=>{
     station.disabled = !hall.value;
     ebene.disabled = !hall.value;
     validate();
   };
+  [station, ebene].forEach(el=> el.onchange = validate);
+  tid.oninput = validate;
 
-  // OCR helper
+  function validate(){
+    btnSave.disabled = !(
+      hall.value &&
+      station.value &&
+      ebene.value &&
+      /^\d{2}$/.test(tid.value.trim()) &&
+      rechnerSN.value &&
+      monitorSN.value
+    );
+  }
+
+  // OCR Funktion mit Preprocessing & Whitelist
   async function doOCR(targetInput){
     showToast('OCR startet…');
-    // Kamera anfordern
-    const stream = await navigator.mediaDevices.getUserMedia({ video:{facingMode:'environment'}});
-    const video = document.createElement('video');
-    video.srcObject = stream;
-    await video.play();
-    // Foto
-    const c = document.createElement('canvas');
-    c.width=video.videoWidth; c.height=video.videoHeight;
-    c.getContext('2d').drawImage(video,0,0);
-    stream.getTracks().forEach(t=>t.stop());
-    // OCR
-    const {data:{text}} = await Tesseract.recognize(c.toDataURL(),'deu+eng');
-    // Muster SN
-    const m = text.match(/SN[:\s]*([A-Z0-9\-]+)/i);
-    targetInput.value = m? m[1] : '';
-    showToast(targetInput.value? 'Erkannt: '+targetInput.value : 'Keine SN gefunden');
-    validate();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' }});
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      await video.play();
+
+      const c = document.createElement('canvas');
+      c.width = video.videoWidth; c.height = video.videoHeight;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(video,0,0);
+
+      // Stop camera
+      stream.getTracks().forEach(t=>t.stop());
+
+      // Graustufen
+      let img = ctx.getImageData(0,0,c.width,c.height);
+      for(let i=0;i<img.data.length;i+=4){
+        const avg = (img.data[i]+img.data[i+1]+img.data[i+2])/3;
+        img.data[i]=img.data[i+1]=img.data[i+2]=avg;
+      }
+      ctx.putImageData(img,0,0);
+
+      // Binarisierung
+      let bin = ctx.getImageData(0,0,c.width,c.height);
+      const thresh = 150;
+      for(let i=0;i<bin.data.length;i+=4){
+        const v = bin.data[i] > thresh ? 255 : 0;
+        bin.data[i]=bin.data[i+1]=bin.data[i+2]=v;
+      }
+      ctx.putImageData(bin,0,0);
+
+      // OCR
+      const { data:{ text }} = await Tesseract.recognize(
+        c.toDataURL(),
+        'deu+eng',
+        { tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' }
+      );
+
+      // Muster extrahieren
+      const m = text.match(/([A-Z0-9\-]{4,})/);
+      targetInput.value = m ? m[1].trim() : '';
+      showToast(targetInput.value ? 'Erkannt: '+targetInput.value : 'Keine SN gefunden');
+      validate();
+
+    } catch(err) {
+      console.error(err);
+      alert('Kamera/OCR Fehler: ' + err.message);
+    }
   }
 
   btnOCRRechner.onclick = ()=> doOCR(rechnerSN);
-  btnOCRMonitor.onclick = ()=> doOCR(monitorSN);
+  btnOCRMonitor.onclick  = ()=> doOCR(monitorSN);
 
-  // Save entry
+  // Speichern
   btnSave.onclick = ()=>{
-    const entry={
-      hall:hall.value,station:station.value,ebene:ebene.value,
-      tid:`AOS ${tid.value.trim()}`,
-      rechnerSN:rechnerSN.value, monitorSN:monitorSN.value
+    const entry = {
+      hall: hall.value,
+      station: station.value,
+      ebene: ebene.value,
+      tid: `AOS ${tid.value.trim()}`,
+      rechnerSN: rechnerSN.value,
+      monitorSN: monitorSN.value
     };
-    const db=getData();
-    if (db.some(e=>e.tid===entry.tid))
-      return showToast('Terminal schon erfasst');
+    const db = getData();
+    if(db.some(e=>e.tid===entry.tid)) return showToast('Terminal existiert schon');
     db.push(entry); setData(db);
     showToast('Terminal gespeichert');
-    // Reset
+    // reset
     [hall,station,ebene,tid,rechnerSN,monitorSN].forEach(e=>e.value='');
     station.disabled=ebene.disabled=true; btnSave.disabled=true;
   };
 
-  // Render Übersicht
+  // Übersicht rendern
   function renderList(){
-    const db=getData();
-    entries.innerHTML='';
-    if (!db.length) return entries.innerHTML=`<p class="text-center text-gray-500">Keine Termine</p>`;
+    const db = getData();
+    entries.innerHTML = '';
+    if(!db.length){
+      entries.innerHTML = `<p class="text-center text-gray-500">Keine Einträge</p>`;
+      return;
+    }
     db.forEach((e,i)=>{
-      const el=document.createElement('div');
-      el.className='bg-white p-4 rounded-2xl shadow flex justify-between items-start';
-      el.innerHTML=`
+      const card = document.createElement('div');
+      card.className = 'bg-white p-4 rounded-2xl shadow flex justify-between items-start';
+      card.innerHTML = `
         <div>
           <p class="font-semibold text-[#1E3246]">${e.tid}</p>
           <p>${e.hall} / ${e.station} / ${e.ebene}</p>
-          <p class="mt-2"><span class="font-medium">Rechner S/N:</span> ${e.rechnerSN}</p>
+          <p class="mt-1"><span class="font-medium">Rechner S/N:</span> ${e.rechnerSN}</p>
           <p><span class="font-medium">Monitor S/N:</span> ${e.monitorSN}</p>
         </div>
-        <button data-i="${i}" class="material-symbols-outlined text-[#E2001A]">delete</button>
-      `;
-      entries.append(el);
-      el.querySelector('button').onclick=()=>{
-        const db2=getData(); db2.splice(i,1); setData(db2); renderList(); showToast('Gelöscht');
+        <button data-i="${i}" class="material-symbols-outlined text-[#E2001A]">delete</button>`;
+      entries.append(card);
+      card.querySelector('button').onclick = ()=>{
+        const db2 = getData();
+        db2.splice(i,1);
+        setData(db2);
+        renderList();
+        showToast('Gelöscht');
       };
     });
   }
 
   // CSV Export
   exportBtn.onclick = ()=>{
-    const db=getData(); if (!db.length) return showToast('Keine Daten');
-    const rows=[['Terminal','Halle','Station','Ebene','RechnerSN','MonitorSN'], ...db.map(e=>[e.tid,e.hall,e.station,e.ebene,e.rechnerSN,e.monitorSN])];
-    const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
-    const blob=new Blob([csv],{type:'text/csv'}), url=URL.createObjectURL(blob),
-          a=document.createElement('a');
-    a.href=url; a.download='terminals.csv'; a.click(); URL.revokeObjectURL(url);
+    const db = getData();
+    if(!db.length) return showToast('Keine Daten');
+    const rows = [['Terminal','Halle','Station','Ebene','RechnerSN','MonitorSN'],
+                  ...db.map(e=>[e.tid,e.hall,e.station,e.ebene,e.rechnerSN,e.monitorSN])];
+    const csv = rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+    const blob = new Blob([csv],{type:'text/csv'}), url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href = url; a.download = 'terminals.csv'; a.click(); URL.revokeObjectURL(url);
     showToast('Export abgeschlossen');
   };
   </script>
