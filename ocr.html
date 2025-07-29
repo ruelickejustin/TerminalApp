@@ -2,15 +2,17 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>OCR · Terminal App</title>
+  <title>OCR Testseite</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
 </head>
 <body class="flex flex-col h-screen bg-gray-50 text-gray-800">
+
   <header class="bg-[#1E3246] text-white p-4 flex items-center">
     <button onclick="history.back()" class="material-symbols-outlined mr-2">arrow_back</button>
     <h1 class="text-lg font-semibold">OCR Testseite</h1>
   </header>
+
   <main class="flex-1 p-4 space-y-4 overflow-auto">
     <video id="cam" autoplay playsinline class="w-full rounded-lg shadow"></video>
     <button id="snap"
@@ -21,20 +23,49 @@
 – noch nichts –
     </pre>
   </main>
+
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <script>
     const video=document.getElementById('cam'),
-          snap=document.getElementById('snap'),
-          out=document.getElementById('output');
-    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
-      .then(s=>video.srcObject=s).catch(e=>alert('Kamera nicht verfügbar'));
-    snap.onclick=async()=>{
-      const c=document.createElement('canvas');
-      c.width=video.videoWidth; c.height=video.videoHeight;
-      c.getContext('2d').drawImage(video,0,0);
-      out.textContent='OCR läuft…';
-      const {data:{text}}=await Tesseract.recognize(c.toDataURL(),'deu+eng');
-      out.textContent=text;
+          snap = document.getElementById('snap'),
+          out  = document.getElementById('output');
+
+    navigator.mediaDevices.getUserMedia({video:{ facingMode:'environment' }})
+      .then(s=>video.srcObject=s)
+      .catch(e=>alert('Kamera nicht verfügbar: '+e.message));
+
+    snap.onclick = async ()=>{
+      const c = document.createElement('canvas');
+      c.width = video.videoWidth; c.height = video.videoHeight;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(video,0,0);
+
+      out.textContent = 'OCR läuft…';
+
+      // Preprocessing
+      let img = ctx.getImageData(0,0,c.width,c.height);
+      for(let i=0;i<img.data.length;i+=4){
+        const avg=(img.data[i]+img.data[i+1]+img.data[i+2])/3;
+        img.data[i]=img.data[i+1]=img.data[i+2]=avg;
+      }
+      ctx.putImageData(img,0,0);
+
+      let bin = ctx.getImageData(0,0,c.width,c.height);
+      const thresh=150;
+      for(let i=0;i<bin.data.length;i+=4){
+        const v=bin.data[i]>thresh?255:0;
+        bin.data[i]=bin.data[i+1]=bin.data[i+2]=v;
+      }
+      ctx.putImageData(bin,0,0);
+
+      // OCR
+      const { data:{ text }} = await Tesseract.recognize(
+        c.toDataURL(),
+        'deu+eng',
+        { tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' }
+      );
+
+      out.textContent = text.trim() || 'Kein Text erkannt';
     };
   </script>
 </body>
