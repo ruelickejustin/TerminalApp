@@ -1,0 +1,20 @@
+{
+  "name": "Terminal App",
+  "short_name": "Terminals",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1E3246",
+  "theme_color": "#1E3246",
+  "icons": [
+    {
+      "src": "https://alstomgroup.sharepoint.com/sites/ProduktionBautzenEPU/TerminalApp/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://alstomgroup.sharepoint.com/sites/ProduktionBautzenEPU/TerminalApp/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

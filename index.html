@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Terminal App · PWA</title>
+
+  <!-- Manifest (relativ, damit es immer im selben Ordner geladen wird) -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#1E3246"/>
+
+  <!-- Google Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <style>
+    /* (Dein komplettes CSS vom letzten Mal – unverändert) */
+    /* … siehe oben … */
+  </style>
+</head>
+<body>
+  <header><h1>Terminal App</h1></header>
+  <main>
+    <section id="viewForm" class="card">
+      <!-- Formular wie gehabt -->
+      <label for="hall">Halle</label>
+      <select id="hall">
+        <option value="">-- wählen --</option>
+        <option>110</option><option>111</option><option>F</option><option>Geb.23</option>
+        <option>M</option><option>M+</option><option>M++</option><option>N</option>
+        <option>O</option><option>Q</option><option>S</option>
+      </select>
+
+      <label for="station">Station</label>
+      <select id="station" disabled>
+        <option value="">-- wählen --</option>
+        <script>
+          for(let r=1;r<=9;r++) for(let c=1;c<=3;c++)
+            document.write(`<option>${r}-${c}</option>`);
+        </script>
+        <option>F21</option><option>F22</option><option>F23</option>
+      </select>
+
+      <label for="ebene">Ebene</label>
+      <select id="ebene" disabled>
+        <option value="">-- wählen --</option>
+        <option>Dach</option><option>Mitte</option><option>Ug</option>
+      </select>
+
+      <label for="tid">Terminal-Nummer (2-stellig)</label>
+      <input id="tid" placeholder="z.B. 01" />
+
+      <button id="btnSave" class="btn-primary" disabled>
+        <span class="material-symbols-outlined">save</span> Speichern
+      </button>
+    </section>
+
+    <section id="viewList" class="hidden">
+      <div id="listActions">
+        <button id="exportBtn" class="btn-secondary">
+          <span class="material-symbols-outlined">download</span> Export CSV
+        </button>
+      </div>
+      <div id="entries"></div>
+    </section>
+  </main>
+
+  <nav>
+    <button id="tabForm" class="active">
+      <span class="material-symbols-outlined">add</span> Erfassen
+    </button>
+    <button id="tabList">
+      <span class="material-symbols-outlined">list</span> Übersicht
+    </button>
+    <button id="tabOCR">
+      <span class="material-symbols-outlined">camera_alt</span> OCR
+    </button>
+  </nav>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    window.addEventListener('load', () => {
+      // Service-Worker relativ registrieren
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+          .catch(err => console.warn('SW-Fehler:', err));
+      }
+
+      // DOM-Elemente
+      const hall = document.getElementById('hall'),
+            station = document.getElementById('station'),
+            ebene = document.getElementById('ebene'),
+            tid = document.getElementById('tid'),
+            saveBtn = document.getElementById('btnSave'),
+            viewForm = document.getElementById('viewForm'),
+            viewList = document.getElementById('viewList'),
+            entries = document.getElementById('entries'),
+            listActions = document.getElementById('listActions'),
+            exportBtn = document.getElementById('exportBtn'),
+            tabForm = document.getElementById('tabForm'),
+            tabList = document.getElementById('tabList'),
+            tabOCR = document.getElementById('tabOCR'),
+            toast = document.getElementById('toast'),
+            KEY = 'terminals',
+            getData = () => JSON.parse(localStorage.getItem(KEY) || '[]'),
+            setData = d => localStorage.setItem(KEY, JSON.stringify(d)),
+            showToast = msg => {
+              toast.textContent = msg;
+              toast.classList.add('show');
+              setTimeout(() => toast.classList.remove('show'), 2000);
+            };
+
+      // Tab-Navigation
+      tabForm.addEventListener('click', () => {
+        viewForm.classList.remove('hidden');
+        viewList.classList.add('hidden');
+        tabForm.classList.add('active');
+        tabList.classList.remove('active');
+      });
+      tabList.addEventListener('click', () => {
+        viewList.classList.remove('hidden');
+        viewForm.classList.add('hidden');
+        tabList.classList.add('active');
+        tabForm.classList.remove('active');
+        renderList();
+      });
+      tabOCR.addEventListener('click', () => {
+        window.location.href = './ocr.html';
+      });
+
+      // Validierung
+      const validate = () => {
+        saveBtn.disabled = !(
+          hall.value &&
+          station.value &&
+          ebene.value &&
+          /^\d{2}$/.test(tid.value.trim())
+        );
+      };
+      hall.addEventListener('change', () => {
+        station.disabled = !hall.value;
+        ebene.disabled = !hall.value;
+        validate();
+      });
+      station.addEventListener('change', validate);
+      ebene.addEventListener('change', validate);
+      tid.addEventListener('input', validate);
+
+      // Speichern
+      saveBtn.addEventListener('click', () => {
+        const entry = {
+          hall: hall.value,
+          station: station.value,
+          ebene: ebene.value,
+          tid: `AOS ${tid.value.trim()}`
+        };
+        const data = getData();
+        if (data.some(d => d.tid === entry.tid)) {
+          return showToast('Terminal-ID existiert bereits');
+        }
+        data.push(entry);
+        setData(data);
+        renderList();
+        showToast('Gespeichert');
+        // Reset
+        hall.value = station.value = ebene.value = tid.value = '';
+        station.disabled = ebene.disabled = true;
+        saveBtn.disabled = true;
+      });
+
+      // Liste rendern
+      function renderList() {
+        const data = getData();
+        entries.innerHTML = '';
+        listActions.classList.toggle('hidden', data.length === 0);
+        if (!data.length) {
+          entries.insertAdjacentHTML(
+            'beforeend',
+            '<p style="text-align:center;color:var(--text-light);margin-top:2rem;">Keine Einträge</p>'
+          );
+          return;
+        }
+        data.forEach((d, i) => {
+          entries.insertAdjacentHTML(
+            'beforeend',
+            `<div class="entry">
+              <div class="entry-info">
+                <span class="hall">${d.hall} / ${d.station} / ${d.ebene}</span>
+                <span>${d.tid}</span>
+              </div>
+              <button class="entry-action" data-i="${i}" title="Löschen">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>`
+          );
+        });
+        document.querySelectorAll('.entry-action').forEach(btn => {
+          btn.addEventListener('click', e => {
+            const idx = +e.currentTarget.dataset.i;
+            const arr = getData();
+            arr.splice(idx, 1);
+            setData(arr);
+            renderList();
+            showToast('Gelöscht');
+          });
+        });
+      }
+
+      // CSV-Export
+      exportBtn.addEventListener('click', () => {
+        const data = getData();
+        if (!data.length) return showToast('Keine Daten');
+        const rows = [
+          ['Halle','Station','Ebene','Terminal-ID'],
+          ...data.map(d => [d.hall, d.station, d.ebene, d.tid])
+        ];
+        const csv = rows.map(r =>
+          r.map(c => `"${c.replace(/"/g,'""')}"`).join(',')
+        ).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'terminals.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Export abgeschlossen');
+      });
+
+      // Initial
+      renderList();
+    });
+  </script>
+</body>
+</html> 

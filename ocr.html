@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OCR Capture · Terminal App</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+  <style>
+    body{font-family:sans-serif;padding:1rem}
+    video,canvas{width:100%;max-width:400px;border:1px solid #ccc;border-radius:8px}
+    button{margin-top:.5rem;padding:.5rem 1rem;font-size:1rem}
+    pre{background:#f4f4f4;padding:1rem;border-radius:4px}
+  </style>
+</head>
+<body>
+  <h1>OCR Foto aufnehmen</h1>
+  <video id="cam" autoplay playsinline></video>
+  <button id="snap">Foto machen & OCR</button>
+  <canvas id="photo" class="hidden"></canvas>
+  <h2>Erkannter Text</h2>
+  <pre id="output">– noch nichts –</pre>
+  <script>
+    const video=document.getElementById('cam'),canvas=document.getElementById('photo'),btn=document.getElementById('snap'),out=document.getElementById('output');
+    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(s=>video.srcObject=s).catch(e=>alert('Kamera nicht verfügbar: '+e));
+    btn.onclick=async()=>{
+      canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+      canvas.getContext('2d').drawImage(video,0,0);
+      out.textContent='→ OCR läuft…';
+      const {data:{text}}=await Tesseract.recognize(canvas.toDataURL('image/png'),{lang:'deu+eng'},{logger:m=>console.log(m)});
+      const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
+      const snP=/(SN[:\s]*)([A-Z0-9\-]+)/i,asP=/(Asset[:\s]*)([A-Z0-9]+)/i,moP=/(Monitor[:\s]*)([A-Z0-9\-]+)/i;
+      let sn,as,mo;
+      for(let l of lines){
+        if(!as&&asP.test(l))as=l.match(asP)[2];
+        if(!sn&&snP.test(l))sn=l.match(snP)[2];
+        if(!mo&&moP.test(l))mo=l.match(moP)[2];
+      }
+      out.textContent=`Rohtext:\n${text}\n\n→ Asset: ${as||'nicht gefunden'}\n→ Rechner SN: ${sn||'nicht gefunden'}\n→ Monitor SN: ${mo||'nicht gefunden'}`;
+    };
+  </script>
+</body>
+</html>
