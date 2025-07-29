@@ -8,9 +8,22 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: peaceiris/actions-gh-pages@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
+          # erlaubt dem Action-Runner, back zum gh-pages-Branch zu pushen
+          persist-credentials: true
+          # holt die ganze Historie, nicht nur den letzten Commit
+          fetch-depth: 0
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          # Dein automatisches Token
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Erstellt/überschreibt die gh-pages-Branch
+          publish_branch: gh-pages
+          # Veröffentliche alles aus dem Repo-Root
           publish_dir: . 
